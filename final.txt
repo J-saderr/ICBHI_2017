@@ -1,0 +1,171 @@
+bash scripts/hftt_pafa_dann_eval.sh
+SpecAugment using
+********************
+Train and test 60-40% split with test_fold official
+File number in train dataset: 539
+********************
+Extracting individual breathing cycles..
+[Preprocessed train dataset information]
+total number of audio data: 4142
+Class 0 (normal) : 2063 (49.8%)
+Class 1 (crackle): 1215 (29.3%)
+Class 2 (wheeze) : 501  (12.1%)
+Class 3 (both)   : 363  (8.8%)
+********************
+Train and test 60-40% split with test_fold official
+File number in test dataset: 381
+********************
+Extracting individual breathing cycles..
+[Preprocessed test dataset information]
+total number of audio data: 2756
+Class 0 (normal) : 1579 (57.3%)
+Class 1 (crackle): 649  (23.5%)
+Class 2 (wheeze) : 385  (14.0%)
+Class 3 (both)   : 143  (5.2%)
+correct
+pretrained model loaded from: ./save/icbhi_hftt_pafa_seed1_dann/best.pth
+********************
+Checkpoint Name: icbhi_hftt_pafa_seed1_dann
+Testing the pretrained checkpoint on icbhi dataset
+ * S_p: 81.25, S_e: 47.15, Score: 64.20 (Best S_p: 81.25, S_e: 47.15, Score: 64.20)
+ * F1 Score: 0.30 (F1 Score: 0.30)
+ * Acc@1 66.69
+best Score: [81.25, 47.15, 64.2, 0.3] (sp, se, sc)
+results updated to ./save/results.json
+Checkpoint icbhi_hftt_pafa_seed1_dann finished
+SpecAugment using
+********************
+Train and test 60-40% split with test_fold official
+File number in train dataset: 539
+********************
+Extracting individual breathing cycles..
+[Preprocessed train dataset information]
+total number of audio data: 4142
+Class 0 (normal) : 2063 (49.8%)
+Class 1 (crackle): 1215 (29.3%)
+Class 2 (wheeze) : 501  (12.1%)
+Class 3 (both)   : 363  (8.8%)
+********************
+Train and test 60-40% split with test_fold official
+File number in test dataset: 381
+********************
+Extracting individual breathing cycles..
+[Preprocessed test dataset information]
+total number of audio data: 2756
+Class 0 (normal) : 1579 (57.3%)
+Class 1 (crackle): 649  (23.5%)
+Class 2 (wheeze) : 385  (14.0%)
+Class 3 (both)   : 143  (5.2%)
+correct
+pretrained model loaded from: ./save/icbhi_hftt_pafa_seed2_dann/best.pth
+********************
+Checkpoint Name: icbhi_hftt_pafa_seed2_dann
+Testing the pretrained checkpoint on icbhi dataset
+ * S_p: 82.39, S_e: 46.64, Score: 64.52 (Best S_p: 82.39, S_e: 46.64, Score: 64.52)
+ * F1 Score: 0.31 (F1 Score: 0.31)
+ * Acc@1 67.13
+best Score: [82.39, 46.64, 64.52, 0.31] (sp, se, sc)
+results updated to ./save/results.json
+Checkpoint icbhi_hftt_pafa_seed2_dann finished
+SpecAugment using
+********************
+Train and test 60-40% split with test_fold official
+File number in train dataset: 539
+********************
+Extracting individual breathing cycles..
+[Preprocessed train dataset information]
+total number of audio data: 4142
+Class 0 (normal) : 2063 (49.8%)
+Class 1 (crackle): 1215 (29.3%)
+Class 2 (wheeze) : 501  (12.1%)
+Class 3 (both)   : 363  (8.8%)
+********************
+Train and test 60-40% split with test_fold official
+File number in test dataset: 381
+********************
+Extracting individual breathing cycles..
+[Preprocessed test dataset information]
+total number of audio data: 2756
+Class 0 (normal) : 1579 (57.3%)
+Class 1 (crackle): 649  (23.5%)
+Class 2 (wheeze) : 385  (14.0%)
+Class 3 (both)   : 143  (5.2%)
+correct
+pretrained model loaded from: ./save/icbhi_hftt_pafa_seed3_dann/best.pth
+********************
+Checkpoint Name: icbhi_hftt_pafa_seed3_dann
+Testing the pretrained checkpoint on icbhi dataset
+ * S_p: 74.10, S_e: 49.11, Score: 61.60 (Best S_p: 74.10, S_e: 49.11, Score: 61.60)
+ * F1 Score: 0.30 (F1 Score: 0.30)
+ * Acc@1 63.43
+best Score: [74.1, 49.11, 61.6, 0.3] (sp, se, sc)
+results updated to ./save/results.json
+Checkpoint icbhi_hftt_pafa_seed3_dann finished
+SpecAugment using
+********************
+Train and test 60-40% split with test_fold official
+File number in train dataset: 539
+********************
+Extracting individual breathing cycles..
+[Preprocessed train dataset information]
+total number of audio data: 4142
+Class 0 (normal) : 2063 (49.8%)
+Class 1 (crackle): 1215 (29.3%)
+Class 2 (wheeze) : 501  (12.1%)
+Class 3 (both)   : 363  (8.8%)
+********************
+Train and test 60-40% split with test_fold official
+File number in test dataset: 381
+********************
+Extracting individual breathing cycles..
+[Preprocessed test dataset information]
+total number of audio data: 2756
+Class 0 (normal) : 1579 (57.3%)
+Class 1 (crackle): 649  (23.5%)
+Class 2 (wheeze) : 385  (14.0%)
+Class 3 (both)   : 143  (5.2%)
+correct
+pretrained model loaded from: ./save/icbhi_hftt_pafa_seed4_dann/best.pth
+********************
+Checkpoint Name: icbhi_hftt_pafa_seed4_dann
+Testing the pretrained checkpoint on icbhi dataset
+ * S_p: 75.93, S_e: 50.81, Score: 63.37 (Best S_p: 75.93, S_e: 50.81, Score: 63.37)
+ * F1 Score: 0.31 (F1 Score: 0.31)
+ * Acc@1 65.20
+best Score: [75.93, 50.81, 63.37, 0.31] (sp, se, sc)
+results updated to ./save/results.json
+Checkpoint icbhi_hftt_pafa_seed4_dann finished
+SpecAugment using
+********************
+Train and test 60-40% split with test_fold official
+File number in train dataset: 539
+********************
+Extracting individual breathing cycles..
+[Preprocessed train dataset information]
+total number of audio data: 4142
+Class 0 (normal) : 2063 (49.8%)
+Class 1 (crackle): 1215 (29.3%)
+Class 2 (wheeze) : 501  (12.1%)
+Class 3 (both)   : 363  (8.8%)
+********************
+Train and test 60-40% split with test_fold official
+File number in test dataset: 381
+********************
+Extracting individual breathing cycles..
+[Preprocessed test dataset information]
+total number of audio data: 2756
+Class 0 (normal) : 1579 (57.3%)
+Class 1 (crackle): 649  (23.5%)
+Class 2 (wheeze) : 385  (14.0%)
+Class 3 (both)   : 143  (5.2%)
+correct
+pretrained model loaded from: ./save/icbhi_hftt_pafa_seed5_dann/best.pth
+********************
+Checkpoint Name: icbhi_hftt_pafa_seed5_dann
+Testing the pretrained checkpoint on icbhi dataset
+ * S_p: 78.28, S_e: 46.90, Score: 62.59 (Best S_p: 78.28, S_e: 46.90, Score: 62.59)
+ * F1 Score: 0.30 (F1 Score: 0.30)
+ * Acc@1 64.88
+best Score: [78.28, 46.9, 62.59, 0.3] (sp, se, sc)
+results updated to ./save/results.json
+Checkpoint icbhi_hftt_pafa_seed5_dann finished
