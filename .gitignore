@@ -3,3 +3,8 @@
 /beat
 /seed1.txt
 /seed2.txt
+
+# Pretrained models (too large for Git)
+/pretrained_models/*.pt
+/pretrained_models/*.zip
+/pretrained_models/*/checkpoint-*.pth
