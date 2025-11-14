@@ -9,12 +9,12 @@ This repository contains the implementation for lung sound classification using 
 - [Installation](#installation)
 - [Dataset Setup](#dataset-setup)
 - [Usage](#usage)
+- [Pretrained Models](#pretrained-models)
 - [Model Architectures](#model-architectures)
 - [Training Methods](#training-methods)
 - [Evaluation Metrics](#evaluation-metrics)
 - [Project Structure](#project-structure)
 - [Scripts](#scripts)
-- [Pretrained Models](#pretrained-models)
 - [Citation](#citation)
 
 ## Overview
