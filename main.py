@@ -15,17 +15,11 @@ import torch.backends.cudnn as cudnn
 from torchvision import transforms
 from util.icbhi_dataset import ICBHIDataset
 from util.icbhi_util import get_score
-from util.augmentation import SpecAugment
 from util.misc import adjust_learning_rate, warmup_learning_rate, set_optimizer, update_moving_average
 from util.misc import AverageMeter, accuracy, save_model, update_json
 from models import get_backbone_class
-from method.pafa import ProjectionHead, PAFALoss
-from method.center_loss import CenterLoss
-from method.visualization import visualize_train_test
-from method.analysis import get_patient_centroids, sort_patients_by_count, find_closest_pairs
-from method.dann import PAFAWithDANN
+from method.dann import ProjectionHead, PCSLWithDANNLighter
 
-    
             
 def parse_args():
     parser = argparse.ArgumentParser('argument for supervised training')
@@ -102,15 +96,9 @@ def parse_args():
                         help='whether to use moving average update for model')
     parser.add_argument('--ma_beta', type=float, default=0,
                         help='moving average value')
-    
-    # for AST
-    parser.add_argument('--audioset_pretrained', action='store_true',
-                        help='load from imagenet- and audioset-pretrained model')
     parser.add_argument('--method', type=str, default='ce') 
     
-
-    
-    # PAFA
+    # PCSL
     parser.add_argument('--norm_type', type=str, default='bn',
                         help='normalization type', choices=['bn', 'ln'])
     parser.add_argument('--hidden_dim', type=int, default=None,
@@ -121,23 +109,13 @@ def parse_args():
                         help='projection type', choices=['end2end', 'feat_fixed', 'proj_fixed'])
     parser.add_argument('--lambda_pcsl', type=float, default=0.1,
                         help='lambda for patient variance ratio loss')
-    parser.add_argument('--lambda_gpal', type=float, default=0.1,
-                        help='lambda for patient invariance loss')
     parser.add_argument('--w_ce', type=float, default=1.0,
                     help='weight for classification loss')
-    parser.add_argument('--w_pafa', type=float, default=0.5,
+    parser.add_argument('--w_projectors', type=float, default=0.5,
                     help='weight for patient loss')
-    
-    # DANN arguments
-    parser.add_argument('--use_dann', action='store_true',
-                        help='use DANN instead of GPAL')
     parser.add_argument('--lambda_dann', type=float, default=0.1,
-                        help='weight for DANN loss (replacing lambda_gpal)')
-    parser.add_argument('--lambda_center', type=float, default=0.0,
-                        help='weight for center loss when using DANN')
-    
-    
-                        
+                        help='weight for DANN loss')
+            
     args = parser.parse_args()
 
     iterations = args.lr_decay_epochs.split(',')
@@ -231,56 +209,37 @@ def set_loader(args):
     
     
     return train_loader, val_loader, args
-
-
         
         
 def set_model(args):
+    # Detect device
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f'Using device: {device}')
+    
     kwargs = {}
-    if args.model == 'ast':
-        kwargs['input_fdim'] = int(args.h * args.resz)
-        kwargs['input_tdim'] = int(args.w * args.resz)
-        kwargs['label_dim'] = args.n_cls
-        kwargs['imagenet_pretrain'] = args.from_sl_official
-        kwargs['audioset_pretrain'] = args.audioset_pretrained
- 
         
-    elif args.model == 'beats':
+    if args.model == 'beats':
         if args.nospec:
             kwargs['spec_transform'] = None
-        else:
-            kwargs['spec_transform'] = SpecAugment(args)
 
     elif args.model == 'hftt':
         if args.nospec:
             kwargs['spec_transform'] = None
-        else:
-            kwargs['spec_transform'] = SpecAugment(args)
 
     
     model = get_backbone_class(args.model)(**kwargs)
-    
-    
 
-    if args.model == 'beats' and args.method == 'pafa':
-        classifier = nn.Linear(model.final_feat_dim, args.n_cls).cuda()
-        projector = ProjectionHead(model.final_feat_dim, args.hidden_dim, args.output_dim, attention=True, norm_type=args.norm_type, proj_type=args.proj_type).cuda()
-    elif args.model == 'hftt' and args.method == 'pafa':  # ← Thêm case này
-        classifier = nn.Linear(model.final_feat_dim, args.n_cls).cuda()
-        projector = ProjectionHead(model.final_feat_dim, args.hidden_dim, args.output_dim, attention=True, norm_type=args.norm_type, proj_type=args.proj_type).cuda()
-    elif args.model == 'ast' and args.method == 'pafa':
-        classifier = nn.Linear(model.final_feat_dim, args.n_cls).cuda()
-        projector = ProjectionHead(model.final_feat_dim, args.hidden_dim, args.output_dim, attention=False, norm_type=args.norm_type, proj_type=args.proj_type).cuda()
-    elif args.model == 'cnn6' and args.method == 'pafa':
-        classifier = nn.Linear(model.final_feat_dim, args.n_cls).cuda()
-        projector = ProjectionHead(model.final_feat_dim, args.hidden_dim, args.output_dim, attention=False, norm_type=args.norm_type, proj_type=args.proj_type).cuda()
+    if args.model == 'beats' and args.method == 'projectors_loss':
+        classifier = nn.Linear(model.final_feat_dim, args.n_cls).to(device)
+        projector = ProjectionHead(model.final_feat_dim, args.hidden_dim, args.output_dim, attention=True, norm_type=args.norm_type, proj_type=args.proj_type).to(device)
+    elif args.model == 'hftt' and args.method == 'projectors_loss':  # ← Thêm case này
+        classifier = nn.Linear(model.final_feat_dim, args.n_cls).to(device)
+        projector = ProjectionHead(model.final_feat_dim, args.hidden_dim, args.output_dim, attention=True, norm_type=args.norm_type, proj_type=args.proj_type).to(device)
     else:
-        classifier = nn.Linear(model.final_feat_dim, args.n_cls).cuda() if args.model not in ['ast'] else deepcopy(model.mlp_head).cuda()
+        classifier = nn.Linear(model.final_feat_dim, args.n_cls).to(device) if args.model not in ['ast'] else deepcopy(model.mlp_head).to(device)
         projector = nn.Identity()
-    
-
                
-    if args.model not in ['ast','beats', 'hftt'] and args.from_sl_official:
+    if args.model not in ['beats', 'hftt'] and args.from_sl_official:
         model.load_sl_official_weights()
         print('pretrained model loaded from PyTorch ImageNet-pretrained')
 
@@ -310,81 +269,48 @@ def set_model(args):
         print('pretrained model loaded from: {}'.format(args.pretrained_ckpt))
     
     criterion = nn.CrossEntropyLoss()
-    center_loss_module = None
 
-    if args.use_dann:
-        pafa = PAFAWithDANN(
-            feature_dim=model.final_feat_dim,
-            num_patients=126  # ICBHI has 126 patients
-        )
-        if args.lambda_center > 0:
-            center_loss_module = CenterLoss(
-                num_classes=args.n_cls,
-                feat_dim=args.output_dim,
-                lambda_center=args.lambda_center
-            ).cuda()
-    else:
-        pafa = PAFALoss()
+    projectors_loss = PCSLWithDANNLighter(
+        feature_dim=model.final_feat_dim,
+        num_patients=126  # ICBHI has 126 patients
+    )
 
     if args.method == 'ce':
-        criterion = [criterion.cuda()]
-    elif args.method == 'pafa':
-        criterion = [criterion.cuda(), pafa.cuda()]
-        if center_loss_module is not None:
-            criterion.append(center_loss_module)
+        criterion = [criterion.to(device)]
+    elif args.method == 'projectors_loss':
+        criterion = [criterion.to(device), projectors_loss.to(device)]
 
-
-    model.cuda()
+    model.to(device)
     
-   
-   
     optim_params = list(model.parameters()) + list(classifier.parameters()) + list(projector.parameters())
-    if center_loss_module is not None:
-        optim_params += list(center_loss_module.parameters())
-    
     optimizer = set_optimizer(args, optim_params)
     
-    return model, classifier, projector, criterion, optimizer
+    return model, classifier, projector, criterion, optimizer, device
 
-
-
-
-def train(train_loader, model, classifier, projector, criterion, optimizer, epoch, args, scaler=None):
+def train(train_loader, model, classifier, projector, criterion, optimizer, epoch, args, scaler=None, device=None):
    
     
     model.train()
-    
     classifier.train()
-    
     projector.train()
-    
-    center_loss_fn = None
-    if args.method == 'pafa' and args.use_dann and args.lambda_center > 0 and len(criterion) > 2:
-        center_loss_fn = criterion[2]
-    
+
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
-    
 
     end = time.time()
     
-    for idx, (images, labels) in enumerate(train_loader):
-        
+    for idx, (images, labels, _) in enumerate(train_loader):
         # data load
         data_time.update(time.time() - end)
-         
-        images = images.cuda(non_blocking=True)
-        
+        images = images.to(device, non_blocking=True)
     
-        class_labels = labels[0].cuda(non_blocking=True)
-        device_labels = labels[1].cuda(non_blocking=True)
-        patient_labels = labels[2].cuda(non_blocking=True)
-        
+        class_labels = labels[0].to(device, non_blocking=True)
+        device_labels = labels[1].to(device, non_blocking=True)
+        patient_labels = labels[2].to(device, non_blocking=True)
         
         bsz = class_labels.shape[0] 
-        
 
         if args.ma_update:
             # store the previous iter checkpoint
@@ -394,7 +320,8 @@ def train(train_loader, model, classifier, projector, criterion, optimizer, epoc
 
         warmup_learning_rate(args, epoch, idx, len(train_loader), optimizer)
 
-        with torch.cuda.amp.autocast():
+        device_type = 'cuda' if device.type == 'cuda' else 'cpu'
+        with torch.amp.autocast(device_type=device_type):
             if args.method == 'ce':
                 if args.model == 'hftt':
                     features = model(images,training=True)
@@ -422,7 +349,7 @@ def train(train_loader, model, classifier, projector, criterion, optimizer, epoc
                     
                     loss = criterion[0](output, class_labels)
                     
-            elif args.method == 'pafa':
+            elif args.method == 'projectors_loss':
                 if args.model == 'beats':
                     features= model(images,training=True)
                     
@@ -434,28 +361,14 @@ def train(train_loader, model, classifier, projector, criterion, optimizer, epoc
                     
                     loss_class = criterion[0](output, class_labels)
                     
-                    loss_center_term = torch.tensor(0.0, device=features.device)
-                    if args.use_dann:
-                        # Use lambda_dann instead of lambda_gpal
-                        loss_pafa = criterion[1](
+                    loss_pcsl = criterion[1](
                             output_projector, 
                             patient_labels,
                             lambda_pcsl=args.lambda_pcsl, 
-                            lambda_dann=args.lambda_dann  # Changed from lambda_gpal
-                        )
-                        if center_loss_fn is not None:
-                            center_features = output_projector.mean(dim=1) if output_projector.dim() == 3 else output_projector
-                            loss_center_term = center_loss_fn(center_features, class_labels)
-                    else:
-                        # Original PAFA with GPAL
-                        loss_pafa = criterion[1](
-                            output_projector, 
-                            patient_labels,
-                            lambda_pcsl=args.lambda_pcsl, 
-                            lambda_gpal=args.lambda_gpal
-                        )
+                            lambda_dann=args.lambda_dann
+                    )
                     
-                    loss = args.w_ce * loss_class + args.w_pafa * loss_pafa + loss_center_term
+                    loss = args.w_ce * loss_class + args.w_projectors * loss_pcsl
                 elif args.model == 'hftt':  # ← Thêm case này
                     features = model(images, training=True)
 
@@ -466,47 +379,15 @@ def train(train_loader, model, classifier, projector, criterion, optimizer, epoc
                     output = output.mean(dim=1)
                     
                     loss_class = criterion[0](output, class_labels)
-                    loss_center_term = torch.tensor(0.0, device=features.device)
-                    if args.use_dann:
-                        # Use lambda_dann instead of lambda_gpal
-                        loss_pafa = criterion[1](
+                    loss_pcsl = criterion[1](
                             output_projector, 
                             patient_labels,
                             lambda_pcsl=args.lambda_pcsl, 
-                            lambda_dann=args.lambda_dann  # Changed from lambda_gpal
-                        )
-                        if center_loss_fn is not None:
-                            center_features = output_projector.mean(dim=1) if output_projector.dim() == 3 else output_projector
-                            loss_center_term = center_loss_fn(center_features, class_labels)
-                    else:
-                        # Original PAFA with GPAL
-                        loss_pafa = criterion[1](
-                            output_projector, 
-                            patient_labels,
-                            lambda_pcsl=args.lambda_pcsl, 
-                            lambda_gpal=args.lambda_gpal
-                        )
-                    
-                    loss = args.w_ce * loss_class + args.w_pafa * loss_pafa + loss_center_term
+                            lambda_dann=args.lambda_dann
+                    )
 
-                else:
-                    if args.nospec:
-                        features = model(images, args=args,training=True)
-                    else:
-                        features = model(args.transforms(images), args=args,training=True)
-                        
-                    
-                    output_projector = projector(features)
-                    
-                    output = classifier(features)
-                    
-                    loss_class = criterion[0](output, class_labels)
-                    loss_pafa = criterion[1](output_projector, patient_labels,lambda_pcsl=args.lambda_pcsl, lambda_gpal=args.lambda_gpal)
-                    
-                    loss = args.w_ce * loss_class + args.w_pafa * loss_pafa
+                    loss = args.w_ce * loss_class + args.w_projectors * loss_pcsl
 
-         
-            
             losses.update(loss.item(), bsz)
        
         [acc1], _ = accuracy(output[:bsz], class_labels, topk=(1,))
@@ -514,9 +395,13 @@ def train(train_loader, model, classifier, projector, criterion, optimizer, epoc
         
         optimizer.zero_grad()
     
-        scaler.scale(loss).backward()
-        scaler.step(optimizer)
-        scaler.update()
+        if scaler is not None:
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            loss.backward()
+            optimizer.step()
     
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -547,7 +432,7 @@ def train(train_loader, model, classifier, projector, criterion, optimizer, epoc
 
 
     
-def validate(val_loader, model, classifier, criterion, args, best_acc, best_model=None,projector=None):
+def validate(val_loader, model, classifier, criterion, args, best_acc, best_model=None,projector=None, device=None):
     save_bool = False
     model.eval()
 
@@ -561,15 +446,16 @@ def validate(val_loader, model, classifier, criterion, args, best_acc, best_mode
 
     with torch.no_grad():
         end = time.time()
-        for idx, (images, labels) in enumerate(val_loader):
-            images = images.cuda(non_blocking=True)
+        for idx, (images, labels, _) in enumerate(val_loader):
+            images = images.to(device, non_blocking=True)
             
-            class_labels = labels[0].cuda(non_blocking=True)
+            class_labels = labels[0].to(device, non_blocking=True)
         
-            labels = class_labels.cuda(non_blocking=True)
+            labels = class_labels.to(device, non_blocking=True)
             bsz = labels.shape[0]
                   
-            with torch.cuda.amp.autocast():
+            device_type = 'cuda' if device.type == 'cuda' else 'cpu'
+            with torch.amp.autocast(device_type=device_type):
                 if args.model == 'beats':
                     features = model(images,training=False)
                     output = classifier(features)
@@ -644,11 +530,12 @@ def evaluate_patient_level(val_loader, model, classifier, projector, args):
     classifier.eval()
     projector.eval()
     with torch.no_grad():
-        for idx, (images, labels) in enumerate(val_loader):
-            images = images.cuda(non_blocking=True)
-            class_labels = labels[0].cuda(non_blocking=True)
+        for idx, (images, labels, _) in enumerate(val_loader):
+            images = images.to(device, non_blocking=True)
+            class_labels = labels[0].to(device, non_blocking=True)
             patient_ids = labels[2]  
-            with torch.cuda.amp.autocast():
+            device_type = 'cuda' if device.type == 'cuda' else 'cpu'
+            with torch.amp.autocast(device_type=device_type):
                 if args.model == 'beats':
                     features = model(images, training=False)
                     output = classifier(features)
@@ -714,25 +601,22 @@ def main():
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-    torch.cuda.manual_seed(args.seed)
-    cudnn.deterministic = True
-    cudnn.benchmark = False
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(args.seed)
+        cudnn.deterministic = True
+        cudnn.benchmark = False
     
     
     best_model = None
     if args.dataset == 'icbhi':
         best_acc = [0, 0, 0, 0]  # Specificity, Sensitivity, Score
-    
-    if not args.nospec:
-        print("sepc")
-        args.transforms = SpecAugment(args)
         
         
     train_loader, val_loader, args = set_loader(args)
 
     
     
-    model, classifier, projector, criterion, optimizer = set_model(args)
+    model, classifier, projector, criterion, optimizer, device = set_model(args)
 
 
             
@@ -751,17 +635,21 @@ def main():
         args.start_epoch = 1
 
     # use mix_precision:
-    scaler = torch.cuda.amp.GradScaler()
+    if device.type == 'cuda':
+        scaler = torch.cuda.amp.GradScaler()
+    else:
+        scaler = None  # Mixed precision not needed on CPU
     
     print('*' * 20)
     print('Checkpoint Name: {}'.format(args.model_name))
      
     if not args.eval:
         print('Training for {} epochs on {} dataset'.format(args.epochs, args.dataset))
+        saved_checkpoint_count = 0  # Đếm số lần đã lưu checkpoint tốt nhất
         for epoch in range(args.start_epoch, args.epochs+1):
             
             # Update GRL lambda if using DANN
-            if args.method == 'pafa' and args.use_dann:
+            if args.method == 'projectors_loss':
                 criterion[1].update_grl_lambda(epoch, args.epochs)
                 print(f'GRL lambda: {criterion[1].grl_lambda:.4f}')
             
@@ -770,24 +658,28 @@ def main():
             # train for one epoch
             time1 = time.time()
             
-            loss, acc = train(train_loader, model, classifier, projector, criterion, optimizer, epoch, args, scaler)
+            loss, acc = train(train_loader, model, classifier, projector, criterion, optimizer, epoch, args, scaler, device)
             time2 = time.time()
             print('Train epoch {}, total time {:.2f}, accuracy:{:.2f}'.format(epoch, time2-time1, acc))
+            saved_checkpoint_count += 1
             
             # eval for one epoch
-            best_acc, best_model, save_bool = validate(val_loader, model, classifier, criterion, args, best_acc, best_model, projector)
+            best_acc, best_model, save_bool = validate(val_loader, model, classifier, criterion, args, best_acc, best_model, projector, device)
+            if saved_checkpoint_count >= 20:
+                print('Đã lưu đủ 20 checkpoint. Dừng training.')
+                break
             
             # save a checkpoint of model and classifier when the best score is updated
-            if save_bool:            
+            if save_bool:
+                # saved_checkpoint_count += 1
                 save_file = os.path.join(args.save_folder, 'best_epoch_{}.pth'.format(epoch))
-                print('Best ckpt is modified with Score = {:.2f} when Epoch = {}'.format(best_acc[2], epoch))
-                # print('Best ckpt is modified with F1 = {:.2f} when Epoch = {}'.format(best_acc[3], epoch))
+                print('Best ckpt is modified with Score = {:.2f} when Epoch = {} (Saved checkpoint {}/{})'.format(best_acc[2], epoch, saved_checkpoint_count, 20))
                 save_model(model, optimizer, args, epoch, save_file,  classifier, projector)
-                
                         
             if epoch % args.save_freq == 0:
                 save_file = os.path.join(args.save_folder, 'epoch_{}.pth'.format(epoch))
                 save_model(model, optimizer, args, epoch, save_file, classifier, projector)
+            
             
 
         # save a checkpoint of classifier with the best accuracy or score
@@ -800,27 +692,8 @@ def main():
    
     else:
         print('Testing the pretrained checkpoint on {} dataset'.format(args.dataset))
-        best_acc, _, _  = validate(val_loader, model, classifier, criterion, args, best_acc, best_model, projector)
+        best_acc, _, _  = validate(val_loader, model, classifier, criterion, args, best_acc, best_model, projector, device)
         model.eval()  # Set the model to evaluation mode
-        
-        ################################################################################
-        ##### For Patient-level evaluation, visualize the patient-level evaluation results
-        ################################################################################    
-        # train_centroids = get_patient_centroids(train_loader, model, projector,save = True)
-        # test_centroids = get_patient_centroids(val_loader, model, projector,save = False)
-
-        # target_train_pids = np.array([107,130,154,158,172,203])
-        # print("target_train_pids", target_train_pids)
-        # train_centroids_for_dist = train_centroids
-        # test_centroids_for_dist  = test_centroids
-        # closest_patient_ids = find_closest_pairs(train_centroids_for_dist, 
-        #                               test_centroids_for_dist, 
-        #                               target_train_pids, 
-        #                               top_k=10)
-        # print("closest_patient_ids", closest_patient_ids)
-
-        # evaluate_patient_level(val_loader, model, classifier, projector, args)
-        # visualize_train_test(train_loader, val_loader, model, classifier, args, projector)
 
     update_json('%s' % args.model_name, best_acc, path=os.path.join(args.save_dir, 'results.json'))
     print('Checkpoint {} finished'.format(args.model_name))

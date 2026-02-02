@@ -1,4 +1,3 @@
-bash scripts/hftt_pafa_dann_eval.sh
 SpecAugment using
 ********************
 Train and test 60-40% split with test_fold official
@@ -22,150 +21,133 @@ Class 0 (normal) : 1579 (57.3%)
 Class 1 (crackle): 649  (23.5%)
 Class 2 (wheeze) : 385  (14.0%)
 Class 3 (both)   : 143  (5.2%)
-correct
-pretrained model loaded from: ./save/icbhi_hftt_pafa_seed1_dann/best.pth
-********************
-Checkpoint Name: icbhi_hftt_pafa_seed1_dann
-Testing the pretrained checkpoint on icbhi dataset
- * S_p: 81.25, S_e: 47.15, Score: 64.20 (Best S_p: 81.25, S_e: 47.15, Score: 64.20)
- * F1 Score: 0.30 (F1 Score: 0.30)
- * Acc@1 66.69
-best Score: [81.25, 47.15, 64.2, 0.3] (sp, se, sc)
-results updated to ./save/results.json
-Checkpoint icbhi_hftt_pafa_seed1_dann finished
-SpecAugment using
-********************
-Train and test 60-40% split with test_fold official
-File number in train dataset: 539
-********************
-Extracting individual breathing cycles..
-[Preprocessed train dataset information]
-total number of audio data: 4142
-Class 0 (normal) : 2063 (49.8%)
-Class 1 (crackle): 1215 (29.3%)
-Class 2 (wheeze) : 501  (12.1%)
-Class 3 (both)   : 363  (8.8%)
-********************
-Train and test 60-40% split with test_fold official
-File number in test dataset: 381
-********************
-Extracting individual breathing cycles..
-[Preprocessed test dataset information]
-total number of audio data: 2756
-Class 0 (normal) : 1579 (57.3%)
-Class 1 (crackle): 649  (23.5%)
-Class 2 (wheeze) : 385  (14.0%)
-Class 3 (both)   : 143  (5.2%)
-correct
-pretrained model loaded from: ./save/icbhi_hftt_pafa_seed2_dann/best.pth
 ********************
 Checkpoint Name: icbhi_hftt_pafa_seed2_dann
-Testing the pretrained checkpoint on icbhi dataset
- * S_p: 82.39, S_e: 46.64, Score: 64.52 (Best S_p: 82.39, S_e: 46.64, Score: 64.52)
+Training for 20 epochs on icbhi dataset
+GRL lambda: 0.2449
+Train: [1][100/129]     BT 1.246 (1.177)        DT 0.025 (0.032)        Loss 3.730 (4.105)      Acc@1 68.750 (57.844)
+Train epoch 1, total time 151.24, accuracy:59.69
+ * S_p: 74.54, S_e: 39.59, Score: 57.07 (Best S_p: 74.54, S_e: 39.59, Score: 57.07)
+ * F1 Score: 0.29 (F1 Score: 0.29)
+ * Acc@1 59.62
+Best ckpt is modified with Score = 57.07 when Epoch = 1 (Saved checkpoint 1/20)
+GRL lambda: 0.4621
+Train: [2][100/129]     BT 1.171 (1.162)        DT 0.023 (0.035)        Loss 4.427 (3.703)      Acc@1 68.750 (69.625)
+Train epoch 2, total time 150.28, accuracy:69.89
+ * S_p: 53.58, S_e: 58.62, Score: 56.10 (Best S_p: 74.54, S_e: 39.59, Score: 57.07)
+ * F1 Score: 0.30 (F1 Score: 0.29)
+ * Acc@1 55.73
+GRL lambda: 0.6351
+Train: [3][100/129]     BT 1.085 (1.157)        DT 0.025 (0.033)        Loss 3.656 (3.632)      Acc@1 65.625 (74.188)
+Train epoch 3, total time 148.89, accuracy:74.20
+ * S_p: 80.24, S_e: 45.71, Score: 62.98 (Best S_p: 80.24, S_e: 45.71, Score: 62.98)
+ * F1 Score: 0.30 (F1 Score: 0.30)
+ * Acc@1 65.49
+Best ckpt is modified with Score = 62.98 when Epoch = 3 (Saved checkpoint 3/20)
+GRL lambda: 0.7616
+Train: [4][100/129]     BT 1.197 (1.159)        DT 0.027 (0.035)        Loss 3.452 (3.547)      Acc@1 78.125 (79.594)
+Train epoch 4, total time 148.87, accuracy:79.17
+ * S_p: 83.41, S_e: 48.43, Score: 65.92 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
  * F1 Score: 0.31 (F1 Score: 0.31)
- * Acc@1 67.13
-best Score: [82.39, 46.64, 64.52, 0.31] (sp, se, sc)
+ * Acc@1 68.47
+Best ckpt is modified with Score = 65.92 when Epoch = 4 (Saved checkpoint 4/20)
+GRL lambda: 0.8483
+Train: [5][100/129]     BT 1.146 (1.166)        DT 0.021 (0.034)        Loss 3.582 (3.483)      Acc@1 84.375 (82.000)
+Train epoch 5, total time 149.84, accuracy:81.76
+ * S_p: 80.87, S_e: 43.42, Score: 62.14 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 64.88
+GRL lambda: 0.9051
+Train: [6][100/129]     BT 1.192 (1.164)        DT 0.031 (0.034)        Loss 3.319 (3.431)      Acc@1 90.625 (85.344)
+Train epoch 6, total time 150.38, accuracy:85.61
+ * S_p: 71.88, S_e: 49.87, Score: 60.88 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 62.48
+GRL lambda: 0.9414
+Train: [7][100/129]     BT 1.124 (1.165)        DT 0.022 (0.034)        Loss 3.147 (3.376)      Acc@1 96.875 (88.656)
+Train epoch 7, total time 150.25, accuracy:88.49
+ * S_p: 86.51, S_e: 41.21, Score: 63.86 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 67.16
+GRL lambda: 0.9640
+Train: [8][100/129]     BT 1.175 (1.171)        DT 0.027 (0.035)        Loss 3.258 (3.343)      Acc@1 87.500 (90.438)
+Train epoch 8, total time 150.30, accuracy:90.58
+ * S_p: 78.72, S_e: 45.20, Score: 61.96 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 64.40
+GRL lambda: 0.9780
+Train: [9][100/129]     BT 1.119 (1.157)        DT 0.027 (0.034)        Loss 3.244 (3.319)      Acc@1 90.625 (92.188)
+Train epoch 9, total time 148.73, accuracy:91.93
+ * S_p: 84.61, S_e: 41.38, Score: 62.99 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 66.15
+GRL lambda: 0.9866
+Train: [10][100/129]    BT 1.091 (1.168)        DT 0.024 (0.035)        Loss 3.237 (3.280)      Acc@1 100.000 (94.594)
+Train epoch 10, total time 150.75, accuracy:94.57
+ * S_p: 62.19, S_e: 55.14, Score: 58.67 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 59.18
+GRL lambda: 0.9919
+Train: [11][100/129]    BT 1.211 (1.174)        DT 0.026 (0.034)        Loss 3.263 (3.260)      Acc@1 96.875 (95.812)
+Train epoch 11, total time 150.56, accuracy:95.54
+ * S_p: 77.90, S_e: 46.64, Score: 62.27 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 64.55
+GRL lambda: 0.9951
+Train: [12][100/129]    BT 1.115 (1.169)        DT 0.027 (0.035)        Loss 3.318 (3.259)      Acc@1 96.875 (97.156)
+Train epoch 12, total time 150.25, accuracy:97.02
+ * S_p: 75.81, S_e: 45.03, Score: 60.42 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 62.66
+GRL lambda: 0.9970
+Train: [13][100/129]    BT 1.004 (1.164)        DT 0.027 (0.034)        Loss 3.286 (3.252)      Acc@1 100.000 (97.250)
+Train epoch 13, total time 149.21, accuracy:97.12
+ * S_p: 71.06, S_e: 48.60, Score: 59.83 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 61.47
+GRL lambda: 0.9982
+Train: [14][100/129]    BT 1.111 (1.163)        DT 0.022 (0.033)        Loss 3.215 (3.268)      Acc@1 100.000 (97.625)
+Train epoch 14, total time 149.75, accuracy:97.92
+ * S_p: 76.06, S_e: 46.56, Score: 61.31 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 63.46
+GRL lambda: 0.9989
+Train: [15][100/129]    BT 1.196 (1.150)        DT 0.025 (0.033)        Loss 2.991 (3.241)      Acc@1 100.000 (98.531)
+Train epoch 15, total time 148.64, accuracy:98.57
+ * S_p: 76.06, S_e: 46.13, Score: 61.10 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 63.28
+GRL lambda: 0.9993
+Train: [16][100/129]    BT 0.958 (1.155)        DT 0.026 (0.034)        Loss 3.568 (3.239)      Acc@1 93.750 (98.250)
+Train epoch 16, total time 148.94, accuracy:98.38
+ * S_p: 73.46, S_e: 46.30, Score: 59.88 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 61.87
+GRL lambda: 0.9996
+Train: [17][100/129]    BT 1.101 (1.154)        DT 0.025 (0.035)        Loss 3.304 (3.242)      Acc@1 100.000 (98.375)
+Train epoch 17, total time 148.74, accuracy:98.59
+ * S_p: 74.54, S_e: 45.62, Score: 60.08 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 62.19
+GRL lambda: 0.9998
+Train: [18][100/129]    BT 1.212 (1.169)        DT 0.024 (0.035)        Loss 3.179 (3.237)      Acc@1 100.000 (98.969)
+Train epoch 18, total time 150.14, accuracy:98.93
+ * S_p: 72.64, S_e: 47.24, Score: 59.94 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 61.79
+GRL lambda: 0.9999
+Train: [19][100/129]    BT 1.176 (1.163)        DT 0.027 (0.034)        Loss 3.245 (3.237)      Acc@1 100.000 (98.406)
+Train epoch 19, total time 149.85, accuracy:98.47
+ * S_p: 73.21, S_e: 46.81, Score: 60.01 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 61.94
+GRL lambda: 0.9999
+Train: [20][100/129]    BT 1.587 (1.174)        DT 0.026 (0.034)        Loss 3.279 (3.233)      Acc@1 100.000 (98.750)
+Train epoch 20, total time 151.26, accuracy:98.89
+ * S_p: 73.21, S_e: 46.81, Score: 60.01 (Best S_p: 83.41, S_e: 48.43, Score: 65.92)
+ * F1 Score: 0.30 (F1 Score: 0.31)
+ * Acc@1 61.94
+Đã lưu đủ 20 checkpoint. Dừng training.
+best Score: [83.41, 48.43, 65.92, 0.31] (sp, se, sc)
 results updated to ./save/results.json
 Checkpoint icbhi_hftt_pafa_seed2_dann finished
-SpecAugment using
-********************
-Train and test 60-40% split with test_fold official
-File number in train dataset: 539
-********************
-Extracting individual breathing cycles..
-[Preprocessed train dataset information]
-total number of audio data: 4142
-Class 0 (normal) : 2063 (49.8%)
-Class 1 (crackle): 1215 (29.3%)
-Class 2 (wheeze) : 501  (12.1%)
-Class 3 (both)   : 363  (8.8%)
-********************
-Train and test 60-40% split with test_fold official
-File number in test dataset: 381
-********************
-Extracting individual breathing cycles..
-[Preprocessed test dataset information]
-total number of audio data: 2756
-Class 0 (normal) : 1579 (57.3%)
-Class 1 (crackle): 649  (23.5%)
-Class 2 (wheeze) : 385  (14.0%)
-Class 3 (both)   : 143  (5.2%)
-correct
-pretrained model loaded from: ./save/icbhi_hftt_pafa_seed3_dann/best.pth
-********************
-Checkpoint Name: icbhi_hftt_pafa_seed3_dann
-Testing the pretrained checkpoint on icbhi dataset
- * S_p: 74.10, S_e: 49.11, Score: 61.60 (Best S_p: 74.10, S_e: 49.11, Score: 61.60)
- * F1 Score: 0.30 (F1 Score: 0.30)
- * Acc@1 63.43
-best Score: [74.1, 49.11, 61.6, 0.3] (sp, se, sc)
-results updated to ./save/results.json
-Checkpoint icbhi_hftt_pafa_seed3_dann finished
-SpecAugment using
-********************
-Train and test 60-40% split with test_fold official
-File number in train dataset: 539
-********************
-Extracting individual breathing cycles..
-[Preprocessed train dataset information]
-total number of audio data: 4142
-Class 0 (normal) : 2063 (49.8%)
-Class 1 (crackle): 1215 (29.3%)
-Class 2 (wheeze) : 501  (12.1%)
-Class 3 (both)   : 363  (8.8%)
-********************
-Train and test 60-40% split with test_fold official
-File number in test dataset: 381
-********************
-Extracting individual breathing cycles..
-[Preprocessed test dataset information]
-total number of audio data: 2756
-Class 0 (normal) : 1579 (57.3%)
-Class 1 (crackle): 649  (23.5%)
-Class 2 (wheeze) : 385  (14.0%)
-Class 3 (both)   : 143  (5.2%)
-correct
-pretrained model loaded from: ./save/icbhi_hftt_pafa_seed4_dann/best.pth
-********************
-Checkpoint Name: icbhi_hftt_pafa_seed4_dann
-Testing the pretrained checkpoint on icbhi dataset
- * S_p: 75.93, S_e: 50.81, Score: 63.37 (Best S_p: 75.93, S_e: 50.81, Score: 63.37)
- * F1 Score: 0.31 (F1 Score: 0.31)
- * Acc@1 65.20
-best Score: [75.93, 50.81, 63.37, 0.31] (sp, se, sc)
-results updated to ./save/results.json
-Checkpoint icbhi_hftt_pafa_seed4_dann finished
-SpecAugment using
-********************
-Train and test 60-40% split with test_fold official
-File number in train dataset: 539
-********************
-Extracting individual breathing cycles..
-[Preprocessed train dataset information]
-total number of audio data: 4142
-Class 0 (normal) : 2063 (49.8%)
-Class 1 (crackle): 1215 (29.3%)
-Class 2 (wheeze) : 501  (12.1%)
-Class 3 (both)   : 363  (8.8%)
-********************
-Train and test 60-40% split with test_fold official
-File number in test dataset: 381
-********************
-Extracting individual breathing cycles..
-[Preprocessed test dataset information]
-total number of audio data: 2756
-Class 0 (normal) : 1579 (57.3%)
-Class 1 (crackle): 649  (23.5%)
-Class 2 (wheeze) : 385  (14.0%)
-Class 3 (both)   : 143  (5.2%)
-correct
-pretrained model loaded from: ./save/icbhi_hftt_pafa_seed5_dann/best.pth
-********************
-Checkpoint Name: icbhi_hftt_pafa_seed5_dann
-Testing the pretrained checkpoint on icbhi dataset
- * S_p: 78.28, S_e: 46.90, Score: 62.59 (Best S_p: 78.28, S_e: 46.90, Score: 62.59)
- * F1 Score: 0.30 (F1 Score: 0.30)
- * Acc@1 64.88
-best Score: [78.28, 46.9, 62.59, 0.3] (sp, se, sc)
-results updated to ./save/results.json
-Checkpoint icbhi_hftt_pafa_seed5_dann finished

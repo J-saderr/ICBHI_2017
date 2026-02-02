@@ -4,10 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from BEATs.BEATs import BEATs, BEATsConfig
 
+# HFTT's frequency-temporal attention for multi-scale features
 class FrequencyTemporalAttention(nn.Module):
-    """
-    HFTT's frequency-temporal attention for multi-scale features
-    """
     def __init__(self, dim, num_heads=8, qkv_bias=True, dropout=0.1):
         super().__init__()
         self.num_heads = num_heads
@@ -20,9 +18,6 @@ class FrequencyTemporalAttention(nn.Module):
         self.norm = nn.LayerNorm(dim)
         
     def forward(self, x):
-        """
-        x: [B, N, D]
-        """
         B, N, D = x.shape
         
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim)
@@ -38,12 +33,8 @@ class FrequencyTemporalAttention(nn.Module):
         
         return x
 
-
+# Capture both short-term (crackles) and long-term (wheezes) patterns
 class MultiScaleTemporalPooling(nn.Module):
-    """
-    HFTT's multi-scale temporal pooling
-    Capture both short-term (crackles) and long-term (wheezes) patterns
-    """
     def __init__(self, dim, scales=[1, 2, 4]):
         super().__init__()
         self.scales = scales
@@ -94,16 +85,8 @@ class MultiScaleTemporalPooling(nn.Module):
         
         return fused
 
-
+# Hybrid HFTT: BEATs encoder (pretrained) + Frequency-Temporal attention + Multi-scale temporal pooling
 class HybridHFTT(nn.Module):
-    """
-    Hybrid HFTT: BEATs encoder (pretrained) + HFTT improvements
-    
-    Architecture:
-    1. BEATs encoder (frozen or fine-tuned) - provides audio representations
-    2. Frequency-Temporal attention - exploit spectrogram structure
-    3. Multi-scale temporal pooling - capture crackles & wheezes
-    """
     def __init__(
         self,
         num_target_classes: int = 4,
@@ -126,12 +109,7 @@ class HybridHFTT(nn.Module):
         self.beats = BEATs(cfg)
         self.beats.load_state_dict(checkpoint["model"])
         
-        # Freeze BEATs encoder if needed
-        if freeze_encoder:
-            for param in self.beats.parameters():
-                param.requires_grad = False
-        
-        self.encoder_dim = cfg.encoder_embed_dim  # Usually 768
+        self.encoder_dim = cfg.encoder_embed_dim
         self.final_feat_dim = self.encoder_dim
         
         # 2. HFTT improvements
@@ -198,14 +176,7 @@ def get_hftt_model(
     freeze_encoder=False,
     spec_transform=None
 ):
-    """
-    Create Hybrid HFTT model
-    
-    Args:
-        beats_model_path: Path to pretrained BEATs checkpoint
-        freeze_encoder: If True, freeze BEATs encoder (only train HFTT head)
-        spec_transform: SpecAugment transform
-    """
+
     model = HybridHFTT(
         num_target_classes=4,
         beats_model_path=beats_model_path,
@@ -279,7 +250,7 @@ def get_hftt_model(
 #         # Cross-scale fusion with regularization
 #         self.fusion = nn.Sequential(
 #             nn.Linear(dim * len(scales), dim),
-#             nn.LayerNorm(dim),
+#             #nn.LayerNorm(dim),
 #             nn.GELU(),
 #             nn.Dropout(0.3)  # CHANGED: 0.3
 #         )

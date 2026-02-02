@@ -56,15 +56,75 @@ class DomainDiscriminator(nn.Module):
     def forward(self, x):
         return self.discriminator(x)
 
+class ProjectionHead(nn.Module):
+    def __init__(self, input_dim=768, hidden_dim=None, output_dim=None, attention=False, proj_type='end2end',norm_type='bn'):
+        super().__init__()
+        self.attention = attention
+        self.proj_type = proj_type
+        
+        # Set default output_dim if None
+        if hidden_dim is None:
+            hidden_dim = input_dim
+            
+        if attention:
+            self.temporal_attn = nn.Sequential(
+                nn.Linear(input_dim, 1),
+                nn.Softmax(dim=1)
+            )
+        
+        # MLP projection with optional hidden layer
+        if hidden_dim is not None:
+            if norm_type == 'bn':
+                self.projection = nn.Sequential(
+                    nn.Linear(input_dim, hidden_dim),
+                    nn.BatchNorm1d(hidden_dim),
+                    nn.ReLU(),
+                    nn.Linear(hidden_dim, output_dim)
+                )
+            elif norm_type == 'ln':
+                self.projection = nn.Sequential(
+                    nn.Linear(input_dim, hidden_dim),
+                    nn.LayerNorm(hidden_dim),
+                    nn.ReLU(),
+                    nn.Linear(hidden_dim, output_dim)
+                )
+        else:
+            if norm_type == 'bn':
+                self.projection = nn.Sequential(
+                    nn.Linear(input_dim, output_dim),
+                    nn.BatchNorm1d(output_dim),
+                    nn.ReLU(),
+                    nn.Linear(output_dim, output_dim)
+                )
+            elif norm_type == 'ln':
+                self.projection = nn.Sequential(
+                    nn.Linear(input_dim, output_dim),
+                    nn.LayerNorm(output_dim),
+                    nn.ReLU(),
+                    nn.Linear(output_dim, output_dim)
+                )
+        
+    def forward(self, x):
+        # Handle gradient options first
+        if self.proj_type == 'feat_fixed':
+            x = x.detach()
+            
+        if self.attention:
+            # Temporal attention weights
+            attn_weights = self.temporal_attn(x)
+            x = torch.sum(x * attn_weights, dim=1)
+        
+        # Project features
+        x = self.projection(x)
+        
+        # Handle proj_fixed option
+        if self.proj_type == 'proj_fixed':
+            x = x.detach()
+            
+        return x
 
-class PAFAWithDANN(nn.Module):
-    """
-    PAFA with DANN
-    
-    Components:
-    1. PCSL: Patient-level contrastive (unchanged)
-    2. DANN: Domain adversarial (replacing GPAL)
-    """
+class PCSLWithDANNLighter(nn.Module):
+
     def __init__(self, feature_dim=768, num_patients=126, eps=1e-6):
         super().__init__()
         self.eps = eps

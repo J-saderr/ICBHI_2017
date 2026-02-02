@@ -219,7 +219,13 @@ def get_individual_cycles_torchaudio(args, recording_annotations, data_folder, f
     fpath = os.path.join(data_folder, filename+'.wav')
         
     sr = librosa.get_samplerate(fpath)
-    data, _ = torchaudio.load(fpath)
+    # Use librosa to load audio (avoids torchcodec dependency)
+    data_np, _ = librosa.load(fpath, sr=sr, mono=False)
+    # Convert to torch tensor with shape (channels, samples)
+    if len(data_np.shape) == 1:
+        data = torch.from_numpy(data_np).unsqueeze(0)  # Add channel dimension for mono
+    else:
+        data = torch.from_numpy(data_np)
     
     if sr != sample_rate:
         resample = T.Resample(sr, sample_rate)

@@ -1,5 +1,3 @@
-from .pafa import PAFALoss, ProjectionHead
-from .dann import PAFAWithDANN
-from .center_loss import CenterLoss
+from .dann import PCSLWithDANNLighter, ProjectionHead
 
-__all__ = ['PAFALoss', 'ProjectionHead', 'PAFAWithDANN', 'CenterLoss']
+__all__ = ['ProjectionHead', 'PCSLWithDANNLighter']

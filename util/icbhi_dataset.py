@@ -294,7 +294,8 @@ class ICBHIDataset(Dataset):
                 
         
         
-        return audio_image, (torch.tensor(label), torch.tensor(device_label), torch.tensor(patient_id))
+        return audio_image, (torch.tensor(label), torch.tensor(device_label), torch.tensor(patient_id)), torch.tensor(index)
+
 
     
     def __len__(self):
