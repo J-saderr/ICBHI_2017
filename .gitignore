@@ -1,10 +1,27 @@
 /.DS_Store
 /.vscode
 /beat
-/seed1.txt
-/seed2.txt
+
+# Python virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
 
 # Pretrained models (too large for Git)
 /pretrained_models/*.pt
 /pretrained_models/*.zip
 /pretrained_models/*/checkpoint-*.pth
+
+# Training outputs
+save/
+*.pth
+*.pt
+!data/*.pt
